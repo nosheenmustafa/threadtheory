@@ -10,8 +10,9 @@ interface ProductDetailPageProps {
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  // Fetch product from API route with caching
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  console.log('SITE_URL:', process.env.SITE_URL);
+  console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   const res = await fetch(`${baseUrl}/api/products/${params.id}`, {
     next: { revalidate: 60 }, // cache for 60 seconds
     cache: 'force-cache',

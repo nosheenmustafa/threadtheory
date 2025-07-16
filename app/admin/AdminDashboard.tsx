@@ -53,12 +53,12 @@ export default function AdminDashboard() {
       fetchProducts();
     }
     // Fetch total users
-    fetch('/api/auth/user-register')
+    fetch(`${process.env.SITE_URL}/api/auth/user-register`)
       .then(res => res.json())
       .then(data => setTotalUsers(data.count))
       .catch(() => setTotalUsers(null));
     // Fetch total sales
-    fetch('/api/orders')
+    fetch(`${process.env.SITE_URL}/api/orders`)
       .then(res => res.json())
       .then(data => setTotalSales(data.totalSales))
       .catch(() => setTotalSales(null));
