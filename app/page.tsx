@@ -3,8 +3,7 @@ import CartIcon from './components/CartIcon';
 import BannerSlider from './components/BannerSlider';
 
 async function getProducts() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/products`, { cache: 'no-store' });
+  const res = await fetch('/api/products', { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];
@@ -12,8 +11,7 @@ async function getProducts() {
 
 export default async function HomePage() {
   // Fetch banners from API
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/banners`, { cache: 'no-store' });
+  const res = await fetch('/api/banners', { cache: 'no-store' });
   const banners = res.ok ? await res.json() : [];
   const products = await getProducts();
   return (
