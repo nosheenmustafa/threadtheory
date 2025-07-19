@@ -1,16 +1,23 @@
 import ProductDisplay from './components/ProductDisplay';
 import CartIcon from './components/CartIcon';
 import BannerSlider from './components/BannerSlider';
+import { headers } from 'next/headers';
 
 async function getProducts() {
-  const res = await fetch('/api/products', { cache: 'no-store' });
+  const host = (await headers()).get('host');
+  const protocol = process.env.VERCEL ? 'https' : 'http';
+  const baseUrl = `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/products`, { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
 
 export default async function HomePage() {
-  const res = await fetch('/api/banners', { cache: 'no-store' });
+  const host = (await headers()).get('host');
+  const protocol = process.env.VERCEL ? 'https' : 'http';
+  const baseUrl = `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/banners`, { cache: 'no-store' });
   const banners = res.ok ? await res.json() : [];
   const products = await getProducts();
   return (

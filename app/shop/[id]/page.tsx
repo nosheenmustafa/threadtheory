@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import AddToCartButton from '@/app/components/AddToCartButton';
 import ProductDetailClient from './ProductDetailClient';
+import { headers } from 'next/headers';
 
 interface ProductDetailPageProps {
   params: {
@@ -10,7 +11,10 @@ interface ProductDetailPageProps {
 }
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const res = await fetch(`/api/products/${params.id}`, {
+  const host = (await headers()).get('host');
+  const protocol = process.env.VERCEL ? 'https' : 'http';
+  const baseUrl = `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/products/${params.id}`, {
     next: { revalidate: 60 }, // cache for 60 seconds
     cache: 'force-cache',
   });
