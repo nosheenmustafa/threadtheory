@@ -1,8 +1,4 @@
 import UserDashboard from "./userdashboard";
-export default function parentDashboard(){
-  return(
-    <>
-    <UserDashboard/>
-    </>
-  );
+export default function UserDashboardPage() {
+  return <UserDashboard />;
 }
