@@ -1,59 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
-      // Login successful
-      console.log('Login successful:', data.message);
-      
-      // Store authentication state
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', data.admin.email);
-      localStorage.setItem('userName', data.admin.name);
-      
-      // Redirect to admin dashboard after successful login
+    const res = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    });
+    if (res?.error) {
+      setError('Invalid credentials');
+    } else {
       router.push('/admin');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit}>
+      {error && <div className="text-red-500">{error}</div>}
       
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -87,10 +61,9 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        disabled={loading}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? 'Logging in...' : 'Login'}
+        Login
       </button>
     </form>
   );

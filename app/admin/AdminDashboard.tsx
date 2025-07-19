@@ -17,17 +17,13 @@ interface Product {
 }
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
+  // Remove isAuthenticated, userEmail, userName, loading, and related logic
   const [activeSection, setActiveSection] = useState('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productsLoading, setProductsLoading] = useState(false);
   const [showBannerModal, setShowBannerModal] = useState(false);
-  const router = useRouter();
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [totalSales, setTotalSales] = useState<number | null>(null);
   const [salesPeriod, setSalesPeriod] = useState<'today' | 'yesterday' | 'week' | 'month'>('today');
@@ -35,22 +31,14 @@ export default function AdminDashboard() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersPeriod, setOrdersPeriod] = useState<'today' | 'yesterday' | 'week' | 'month'>('today');
   const [ordersCount, setOrdersCount] = useState<number>(0);
+  const router = useRouter();
 
   useEffect(() => {
     // Check authentication status on component mount
-    const authStatus = localStorage.getItem('isAuthenticated');
-    const email = localStorage.getItem('userEmail');
-    const name = localStorage.getItem('userName');
-    
-    if (authStatus === 'true' && email) {
-      setIsAuthenticated(true);
-      setUserEmail(email);
-      setUserName(name || email);
-    } else {
-      // Redirect to login if not authenticated
-      router.push('/login');
-    }
-    setLoading(false);
+    // This part is removed as per the edit hint to remove localStorage-based auth
+    // The parent page should handle authentication before rendering this component
+    // For now, we'll just set activeSection to 'dashboard' to show the default view
+    setActiveSection('dashboard');
   }, [router]);
 
   useEffect(() => {
@@ -117,9 +105,10 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
+    // This function is no longer needed as authentication is handled by parent
+    // localStorage.removeItem('isAuthenticated');
+    // localStorage.removeItem('userEmail');
+    // localStorage.removeItem('userName');
     router.push('/login');
   };
 
@@ -235,17 +224,18 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
+  // The loading state is no longer needed as authentication is handled by parent
+  // if (loading) {
+  //   return (
+  //     <div className="flex min-h-screen items-center justify-center">
+  //       <div className="text-lg">Loading...</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to login
-  }
+  // if (!isAuthenticated) {
+  //   return null; // Will redirect to login
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -328,13 +318,7 @@ export default function AdminDashboard() {
                 {activeSection === 'dashboard' ? 'Dashboard' : activeSection === 'products' ? 'Products Management' : activeSection === 'orders' ? 'Orders' : ''}
               </h1>
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700">Welcome, {userName}</span>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                >
-                  Logout
-                </button>
+                {/* Removed user info and logout button */}
               </div>
             </div>
           </div>
