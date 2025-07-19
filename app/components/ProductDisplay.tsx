@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface Product {
   _id: string;
@@ -121,14 +122,14 @@ export default function ProductDisplay({ products }: { products?: Product[] }) {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                   {filteredProducts.map((product, index) => (
-                    <a
+                    <Link
                       key={product._id}
                       href={`/shop/${product._id}`}
                       className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group animate-fade-in-up block"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {/* Product Image */}
-                      <div className="relative h-64 overflow-hidden">
+                      <div className="relative w-full h-64 overflow-hidden">
                         <img
                           src={product.image}
                           alt={product.title}
@@ -167,7 +168,7 @@ export default function ProductDisplay({ products }: { products?: Product[] }) {
                           </span>
                         </div>
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}

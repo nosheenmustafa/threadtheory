@@ -30,6 +30,11 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [totalSales, setTotalSales] = useState<number | null>(null);
+  const [salesPeriod, setSalesPeriod] = useState<'today' | 'yesterday' | 'week' | 'month'>('today');
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersPeriod, setOrdersPeriod] = useState<'today' | 'yesterday' | 'week' | 'month'>('today');
+  const [ordersCount, setOrdersCount] = useState<number>(0);
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -52,17 +57,27 @@ export default function AdminDashboard() {
     if (activeSection === 'products') {
       fetchProducts();
     }
+    if (activeSection === 'orders') {
+      fetchOrders(ordersPeriod);
+    }
     // Fetch total users
     fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/user-register`)
       .then(res => res.json())
       .then(data => setTotalUsers(data.count))
       .catch(() => setTotalUsers(null));
-    // Fetch total sales
-    fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/orders`)
-      .then(res => res.json())
-      .then(data => setTotalSales(data.totalSales))
-      .catch(() => setTotalSales(null));
-  }, [activeSection]);
+    // Fetch total sales for selected period
+    fetchTotalSales(salesPeriod);
+  }, [activeSection, salesPeriod, ordersPeriod]);
+
+  const fetchTotalSales = async (period: string) => {
+    try {
+      const res = await fetch(`/api/orders?period=${period}`);
+      const data = await res.json();
+      setTotalSales(data.totalSales);
+    } catch {
+      setTotalSales(null);
+    }
+  };
 
   const fetchProducts = async () => {
     setProductsLoading(true);
@@ -78,6 +93,26 @@ export default function AdminDashboard() {
       console.error('Error fetching products:', error);
     } finally {
       setProductsLoading(false);
+    }
+  };
+
+  const fetchOrders = async (period: string) => {
+    setOrdersLoading(true);
+    try {
+      const response = await fetch(`/api/orders?period=${period}`);
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data.orders || []);
+        setOrdersCount(data.orders ? data.orders.length : 0);
+      } else {
+        setOrders([]);
+        setOrdersCount(0);
+      }
+    } catch (error) {
+      setOrders([]);
+      setOrdersCount(0);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -268,6 +303,17 @@ export default function AdminDashboard() {
                 🖼️ Add Banner
               </button>
             </div>
+            {/* Orders Section */}
+            <button
+              onClick={() => setActiveSection('orders')}
+              className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                activeSection === 'orders'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              📦 Orders
+            </button>
           </nav>
         </div>
       </div>
@@ -279,7 +325,7 @@ export default function AdminDashboard() {
           <div className="px-6 py-4">
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-bold text-gray-900">
-                {activeSection === 'dashboard' ? 'Dashboard' : 'Products Management'}
+                {activeSection === 'dashboard' ? 'Dashboard' : activeSection === 'products' ? 'Products Management' : activeSection === 'orders' ? 'Orders' : ''}
               </h1>
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Welcome, {userName}</span>
@@ -302,21 +348,36 @@ export default function AdminDashboard() {
                 {/* Dashboard Cards */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                          <span className="text-white font-bold">📊</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                            <span className="text-white font-bold">📊</span>
+                          </div>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">
+                              Total Sales
+                            </dt>
+                            <dd className="text-lg font-medium text-gray-900">
+                              {totalSales !== null ? `PKR ${totalSales.toLocaleString('en-PK')}` : 'Loading...'}
+                            </dd>
+                          </dl>
                         </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Total Sales
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">
-                            {totalSales !== null ? `PKR ${totalSales.toLocaleString('en-PK')}` : 'Loading...'}
-                          </dd>
-                        </dl>
+                      {/* Sales Period Dropdown */}
+                      <div>
+                        <select
+                          className="border rounded px-2 py-1 text-sm"
+                          value={salesPeriod}
+                          onChange={e => setSalesPeriod(e.target.value as any)}
+                        >
+                          <option value="today">Today</option>
+                          <option value="yesterday">Yesterday</option>
+                          <option value="week">Last 7 Days</option>
+                          <option value="month">Last 30 Days</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -419,6 +480,117 @@ export default function AdminDashboard() {
                       onEdit={handleEditProduct}
                       onDelete={handleDeleteProduct}
                     />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeSection === 'orders' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-gray-900">Orders</h2>
+                <div className="flex items-center space-x-4">
+                  <select
+                    className="border rounded px-2 py-1 text-sm"
+                    value={ordersPeriod}
+                    onChange={e => setOrdersPeriod(e.target.value as any)}
+                  >
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="month">Last 30 Days</option>
+                  </select>
+                  <span className="text-gray-700 text-sm font-semibold">Orders: {ordersCount}</span>
+                </div>
+              </div>
+              {ordersLoading ? (
+                <div className="text-center py-8">
+                  <div className="text-lg">Loading orders...</div>
+                </div>
+              ) : orders.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-lg">No orders found.</div>
+                </div>
+              ) : (
+                <div className="bg-white shadow rounded-lg">
+                  <div className="p-6">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-white border border-gray-200 rounded-xl">
+                        <thead>
+                          <tr>
+                            <th className="px-4 py-2 border-b">Order number</th>
+                            <th className="px-4 py-2 border-b">Order ID</th>
+                            <th className="px-4 py-2 border-b">User</th>
+                            <th className="px-4 py-2 border-b">Address</th>
+                            <th className="px-4 py-2 border-b">Products</th>
+                            <th className="px-4 py-2 border-b">Total</th>
+                            <th className="px-4 py-2 border-b">Date</th>
+                            <th className="px-4 py-2 border-b">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orders.map((order: any, idx: number) => (
+                            <tr key={order._id}>
+                              <td className="px-4 py-2 border-b text-xs">{idx + 1}</td>
+                              <td className="px-4 py-2 border-b text-xs">{order._id}</td>
+                              <td className="px-4 py-2 border-b text-xs">{order.userId}</td>
+                              <td className="px-4 py-2 border-b text-xs">
+                                {order.address ? (
+                                  <div>
+                                    <div>{order.address.street}</div>
+                                    <div>{order.address.city}, {order.address.state}</div>
+                                    <div>{order.address.zipCode}, {order.address.country}</div>
+                                  </div>
+                                ) : 'N/A'}
+                              </td>
+                              <td className="px-4 py-2 border-b text-xs">
+                                <ul>
+                                  {order.products.map((item: any, idx: number) => (
+                                    <li key={idx}>
+                                      {item.product?.title || 'Product'} x {item.quantity}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </td>
+                              <td className="px-4 py-2 border-b text-xs text-green-700 font-bold">PKR {order.totalPrice?.toLocaleString('en-PK')}</td>
+                              <td className="px-4 py-2 border-b text-xs">{order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}</td>
+                              <td className="px-4 py-2 border-b text-xs">
+                                <select
+                                  className={`border rounded px-2 py-1 text-xs font-semibold
+                                    ${order.status === 'pending' ? 'bg-orange-100 text-orange-700 border-orange-300' : ''}
+                                    ${order.status === 'shipped' ? 'bg-green-100 text-green-700 border-green-300' : ''}
+                                    ${order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-300' : ''}
+                                  `}
+                                  value={order.status || 'pending'}
+                                  onChange={async (e) => {
+                                    const newStatus = e.target.value;
+                                    try {
+                                      const res = await fetch('/api/orders', {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ orderId: order._id, status: newStatus }),
+                                      });
+                                      if (res.ok) {
+                                        setOrders((prev: any[]) => prev.map(o => o._id === order._id ? { ...o, status: newStatus } : o));
+                                      } else {
+                                        alert('Failed to update status');
+                                      }
+                                    } catch {
+                                      alert('Failed to update status');
+                                    }
+                                  }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="shipped">Shipped</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}

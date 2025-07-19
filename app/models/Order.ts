@@ -9,6 +9,19 @@ const OrderSchema = new Schema({
     }
   ],
   totalPrice: { type: Number, required: true },
+  address: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: false },
+    zipCode: { type: String, required: false },
+    country: { type: String, required: true },
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'shipped', 'cancelled'],
+    default: 'pending',
+    required: true,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
