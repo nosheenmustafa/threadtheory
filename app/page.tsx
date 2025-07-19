@@ -3,20 +3,14 @@ import CartIcon from './components/CartIcon';
 import BannerSlider from './components/BannerSlider';
 
 async function getProducts() {
-  console.log('SITE_URL:', process.env.SITE_URL);
-  console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/products`, { cache: 'no-store' });
+  const res = await fetch('/api/products', { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];
 }
 
 export default async function HomePage() {
-  console.log('SITE_URL:', process.env.SITE_URL);
-  console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/banners`, { cache: 'no-store' });
+  const res = await fetch('/api/banners', { cache: 'no-store' });
   const banners = res.ok ? await res.json() : [];
   const products = await getProducts();
   return (

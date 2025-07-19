@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       fetchOrders(ordersPeriod);
     }
     // Fetch total users
-    fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/user-register`)
+    fetch('/api/auth/user-register')
       .then(res => res.json())
       .then(data => setTotalUsers(data.count))
       .catch(() => setTotalUsers(null));
