@@ -36,7 +36,7 @@ export default function CartClient() {
   const handleCheckout = () => {
     const user = session?.user as SessionUser | undefined;
     if (!user?.id) {
-      router.push('/login');
+      router.push('/user-login');
       return;
     }
     setShowPayment(true);
