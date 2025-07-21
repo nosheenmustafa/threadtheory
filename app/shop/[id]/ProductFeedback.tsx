@@ -122,7 +122,7 @@ export default function ProductFeedback({ productId }: { productId: string }) {
       {/* Comments */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Comments</h3>
-        <form onSubmit={handleAddComment} className="flex items-center mb-4 space-x-2">
+        <form onSubmit={handleAddComment} className="flex flex-col sm:flex-row items-stretch mb-4 gap-2 sm:gap-2">
           <input
             type="text"
             value={commentInput}
@@ -132,7 +132,7 @@ export default function ProductFeedback({ productId }: { productId: string }) {
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg font-semibold hover:from-rose-600 hover:to-purple-700 transition-all duration-200"
+            className="px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg font-semibold hover:from-rose-600 hover:to-purple-700 transition-all duration-200 w-full sm:w-auto"
           >
             Post
           </button>

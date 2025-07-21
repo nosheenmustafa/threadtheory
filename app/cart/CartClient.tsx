@@ -119,45 +119,49 @@ export default function CartClient() {
             </div>
             <div className="space-y-6">
               {state.items.map((item) => (
-                <div key={item._id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl">
+                <div key={item._id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-gray-200 rounded-xl">
                   {/* Product Image */}
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    className="w-20 h-20 object-cover rounded-lg mx-auto sm:mx-0"
                   />
                   {/* Product Info */}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
-                    <p className="text-green-600 font-bold">{formatPrice(item.price)}</p>
+                  <div className="flex-1 w-full">
+                    <h3 className="font-semibold text-gray-900 mb-1 text-center sm:text-left">{item.title}</h3>
+                    <p className="text-green-600 font-bold text-center sm:text-left">{formatPrice(item.price)}</p>
                   </div>
-                  {/* Quantity Controls */}
-                  <button
-                    onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                    className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="w-12 text-center font-medium">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                    className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                  >
-                    +
-                  </button>
+                  {/* Quantity Controls & Delete (grouped for mobile) */}
+                  <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-0">
+                    <div className="flex items-center justify-center gap-2 mb-2 sm:mb-0">
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                        className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                      >
+                        -
+                      </button>
+                      <span className="w-10 text-center font-medium">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                        className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className="text-red-500 hover:text-red-700 p-2 ml-0 sm:ml-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                   {/* Total Price */}
-                  <div className="text-right">
+                  <div className="text-right w-full sm:w-auto">
                     <p className="font-bold text-gray-900">{formatPrice(item.price * item.quantity)}</p>
                   </div>
-                  {/* Remove Button */}
-                  <button
-                    onClick={() => removeFromCart(item._id)}
-                    className="text-red-500 hover:text-red-700 p-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
                 </div>
               ))}
             </div>
